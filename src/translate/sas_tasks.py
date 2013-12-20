@@ -120,7 +120,7 @@ class SASOperator:
     def __init__(self, name, prevail, pre_post, cost):
         self.name = name
         self.prevail = sorted(prevail)
-        self.pre_post = sorted(pre_post)
+        self.pre_post = pre_post # do not sort, order carries meaning
         self.cost = cost
     def dump(self):
         print(self.name)

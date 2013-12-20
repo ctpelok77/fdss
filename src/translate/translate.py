@@ -33,6 +33,16 @@ USE_PARTIAL_ENCODING = True
 DETECT_UNREACHABLE = True
 DUMP_TASK = False
 
+# IF ENFORCE_DEFINITE_EFFECTS is set to True then the operator will set
+# the variable to the defined value whenever the effect condition is
+# true. Otherwise it could be the case that another effect is stronger
+# and "overwrites" the value (this is equivalent to add after delete
+# semantics but in finite domain representation). We do not recommend
+# to set this to true (except your really need it) because it can make
+# the task representation much larger. (If it is still set to true then
+# because it is not yet sufficiently supported by the search component.)
+ENFORCE_DEFINITE_EFFECTS = False
+
 ## Setting the following variable to True can cause a severe
 ## performance penalty due to weaker relevance analysis (see issue7).
 ADD_IMPLIED_PRECONDITIONS = False
@@ -239,28 +249,32 @@ def translate_strips_operator_aux(operator, dictionary, ranges, mutex_dict,
                 if var in cond and cond[var] != val:
                     continue  # condition inconsistent with deleted atom
                 cond[var] = val
-                # add condition that no add effect triggers
-                for no_add_cond in no_add_effect_condition:
-                    new_cond = dict(cond)
-                    # This is a rather expensive step. We try every no_add_cond
-                    # with every condition of the delete effect and discard the
-                    # overal combination if it is unsatisfiable. Since
-                    # no_add_effect_condition is precomputed it can contain many
-                    # no_add_conds in which a certain literal occurs. So if cond
-                    # plus the literal is already unsatisfiable, we still try
-                    # all these combinations. A possible optimization would be
-                    # to re-compute no_add_effect_condition for every delete
-                    # effect and to unfold the product(*condition) in
-                    # negate_and_translate_condition to allow an early break.
-                    for cvar, cval in no_add_cond.items():
-                        if cvar in new_cond and new_cond[cvar] != cval:
-                            # the del effect condition plus the deleted atom
-                            # imply that some add effect on the variable
-                            # triggers
-                            break
-                        new_cond[cvar] = cval
-                    else:
-                        effects_by_variable[var][none_of_those].append(new_cond)
+                if ENFORCE_DEFINITE_EFFECTS:
+                    # add condition that no add effect triggers
+                    for no_add_cond in no_add_effect_condition:
+                        new_cond = dict(cond)
+                        # This is a rather expensive step. We try every no_add_cond
+                        # with every condition of the delete effect and discard the
+                        # overal combination if it is unsatisfiable. Since
+                        # no_add_effect_condition is precomputed it can contain many
+                        # no_add_conds in which a certain literal occurs. So if cond
+                        # plus the literal is already unsatisfiable, we still try
+                        # all these combinations. A possible optimization would be
+                        # to re-compute no_add_effect_condition for every delete
+                        # effect and to unfold the product(*condition) in
+                        # negate_and_translate_condition to allow an early break.
+                        for cvar, cval in no_add_cond.items():
+                            if cvar in new_cond and new_cond[cvar] != cval:
+                                # the del effect condition plus the deleted atom
+                                # imply that some add effect on the variable
+                                # triggers
+                                break
+                            new_cond[cvar] = cval
+                        else:
+                            effects_by_variable[var][none_of_those].append(new_cond)
+                else:
+                    effects_by_variable[var][none_of_those].append(cond)
+                        
 
     return build_sas_operator(operator.name, condition, effects_by_variable,
                               operator.cost, ranges, implied_facts)
@@ -301,10 +315,17 @@ def build_sas_operator(name, condition, effects_by_variable, cost, ranges,
                 # we do not need to represent a precondition as effect condition
                 if (var, pre) in eff_condition:
                     eff_condition.remove((var, pre))
+                eff_condition.sort()
                 pre_post.append((var, pre, post, eff_condition))
     if not pre_post:  # operator is noop
         return None
     prevail = list(condition.items())
+    # We sort effects on a variable in decreasing order of their post
+    # condition so that none-of-those effects (corresponding to delete
+    # effects) are executed first and possibly overwritten by other
+    # effects (add-after-delete semantics).
+    pre_post = sorted(pre_post,
+                     key=lambda (var, pre, val, cond): (var, -val, cond))
     return sas_tasks.SASOperator(name, prevail, pre_post, cost)
 
 

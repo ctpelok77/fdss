@@ -290,10 +290,15 @@ def build_sas_operator(name, condition, effects_by_variable, cost, ranges,
     pre_post = []
     for var in effects_by_variable:
         orig_pre = condition.get(var, -1)
+        none_of_those = ranges[var] - 1
+        has_delete_effect = none_of_those in effects_by_variable[var]
         for post, eff_conditions in effects_by_variable[var].items():
             pre = orig_pre
             # if the effect does not change the variable value, we ignore it
-            if pre == post:
+            # unless there is a delete effect present, in which case the add
+            # effect can overwrite the delete effect and it is not safe to
+            # ignore it.
+            if pre == post and not has_delete_effect:
                 continue
             # otherwise the condition on var is not a prevail condition but a
             # precondition, so we remove it from the prevail condition

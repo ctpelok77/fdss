@@ -339,8 +339,10 @@ def build_sas_operator(name, condition, effects_by_variable, cost, ranges,
     # condition so that none-of-those effects (corresponding to delete
     # effects) are executed first and possibly overwritten by other
     # effects (add-after-delete semantics).
-    pre_post = sorted(pre_post,
-                     key=lambda (var, pre, val, cond): (var, -val, cond))
+    def add_after_delete(effect):
+        var, pre, val, cond = effect
+        return var, -val, cond
+    pre_post = sorted(pre_post, key=add_after_delete)
     return sas_tasks.SASOperator(name, prevail, pre_post, cost)
 
 

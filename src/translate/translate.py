@@ -290,11 +290,13 @@ def build_sas_operator(name, condition, effects_by_variable, cost, ranges,
         added_effect = False
         for post, eff_conditions in effects_on_var.items():
             pre = orig_pre
-            # if the effect does not change the variable value, we ignore it
-            # unless there is a delete effect present, in which case the add
-            # effect can overwrite the delete effect and it is not safe to
-            # ignore it.
-            if pre == post and not has_delete_effect:
+            # If the effect does not change the variable value, we ignore it if
+            # we are enforcing definite effects or there is no delete effect
+            # present. Under add-after-delete semantics for conditional effects
+            # add effects can overwrite delete effects and it is not safe to
+            # ignore add effects.
+            if pre == post and (
+                    options.enforce_definite_effects or not has_delete_effect):
                 continue
             eff_condition_lists = [sorted(eff_cond.items())
                                    for eff_cond in eff_conditions]

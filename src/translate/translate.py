@@ -335,14 +335,6 @@ def build_sas_operator(name, condition, effects_by_variable, cost, ranges,
     if not pre_post:  # operator is noop
         return None
     prevail = list(condition.items())
-    # We sort effects on a variable in decreasing order of their post
-    # condition so that none-of-those effects (corresponding to delete
-    # effects) are executed first and possibly overwritten by other
-    # effects (add-after-delete semantics).
-    def add_after_delete(effect):
-        var, pre, val, cond = effect
-        return var, -val, cond
-    pre_post = sorted(pre_post, key=add_after_delete)
     return sas_tasks.SASOperator(name, prevail, pre_post, cost)
 
 

@@ -111,8 +111,9 @@ def run_sat_config(configs, pos, search_cost_type, heuristic_cost_type,
     return result
 
 
-def run_sat(configs, executable, sas_file, plan_manager, final_config,
-            final_config_builder, timeout, memory):
+def run_nonoptimal(
+    track, configs, executable, sas_file, plan_manager, final_config,
+    final_config_builder, timeout, memory):
     # If the configuration contains S_COST_TYPE or H_COST_TRANSFORM and the task
     # has non-unit costs, we start by treating all costs as one. When we find
     # a solution, we rerun the successful config with real costs.
@@ -133,6 +134,9 @@ def run_sat(configs, executable, sas_file, plan_manager, final_config,
                 return
 
             if exitcode == returncodes.EXIT_PLAN_FOUND:
+                if track != "sat":
+                    # Only seq-sat rewards finding better plans after the first one.
+                    return
                 configs_next_round.append((relative_time, args))
                 if (not changed_cost_types and can_change_cost_type(args) and
                     plan_manager.get_problem_type() == "general cost"):
@@ -204,6 +208,10 @@ def get_portfolio_attributes(portfolio):
     if "OPTIMAL" in attributes:
         attributes["TRACK"] = "opt"
         del attributes["OPTIMAL"]
+    tracks = ["agl", "cbo", "opt", "sat"]
+    if attributes["TRACK"] not in tracks:
+        raise ValueError(
+            "track {} is not one of {}".format(attributes["TRACK"], tracks))
     return attributes
 
 
@@ -238,8 +246,8 @@ def run(portfolio, executable, sas_file, plan_manager, time, memory):
         exitcodes = run_opt(
             configs, executable, sas_file, plan_manager, timeout, memory)
     else:
-        exitcodes = run_sat(
-            configs, executable, sas_file, plan_manager, final_config,
+        exitcodes = run_nonoptimal(
+            track, configs, executable, sas_file, plan_manager, final_config,
             final_config_builder, timeout, memory)
     exitcode = returncodes.generate_portfolio_exitcode(exitcodes)
     if exitcode != 0:

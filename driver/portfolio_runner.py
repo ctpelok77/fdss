@@ -199,8 +199,11 @@ def get_portfolio_attributes(portfolio):
                 "for examples using the new syntax." % portfolio)
     if "CONFIGS" not in attributes:
         raise ValueError("portfolios must define CONFIGS")
-    if "OPTIMAL" not in attributes:
-        raise ValueError("portfolios must define OPTIMAL")
+    if not (("TRACK" in attributes) ^ ("OPTIMAL" in attributes)):
+        raise ValueError("portfolios must define either OPTIMAL or TRACK")
+    if "OPTIMAL" in attributes:
+        attributes["TRACK"] = "opt"
+        del attributes["OPTIMAL"]
     return attributes
 
 
@@ -213,7 +216,7 @@ def run(portfolio, executable, sas_file, plan_manager, time, memory):
     """
     attributes = get_portfolio_attributes(portfolio)
     configs = attributes["CONFIGS"]
-    optimal = attributes["OPTIMAL"]
+    track = attributes["TRACK"]
     final_config = attributes.get("FINAL_CONFIG")
     final_config_builder = attributes.get("FINAL_CONFIG_BUILDER")
     if "TIMEOUT" in attributes:
@@ -231,7 +234,7 @@ def run(portfolio, executable, sas_file, plan_manager, time, memory):
 
     timeout = util.get_elapsed_time() + time
 
-    if optimal:
+    if track == "opt":
         exitcodes = run_opt(
             configs, executable, sas_file, plan_manager, timeout, memory)
     else:

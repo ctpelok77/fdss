@@ -203,11 +203,8 @@ def get_portfolio_attributes(portfolio):
                 "for examples using the new syntax." % portfolio)
     if "CONFIGS" not in attributes:
         raise ValueError("portfolios must define CONFIGS")
-    if not (("TRACK" in attributes) ^ ("OPTIMAL" in attributes)):
-        raise ValueError("portfolios must define either OPTIMAL or TRACK")
-    if "OPTIMAL" in attributes:
-        attributes["TRACK"] = "opt"
-        del attributes["OPTIMAL"]
+    if "TRACK" not in attributes:
+        raise ValueError("portfolios must define TRACK")
     tracks = ["agl", "cbo", "opt", "sat"]
     if attributes["TRACK"] not in tracks:
         raise ValueError(

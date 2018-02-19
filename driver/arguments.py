@@ -324,6 +324,9 @@ def parse_args():
     driver_other.add_argument(
         "--portfolio", metavar="FILE",
         help="run a portfolio specified in FILE")
+    driver_other.add_argument(
+        "--max-plan-cost", metavar="VALUE", default=None, type=int,
+        help="maximum plan cost (only used for portfolios)")
 
     driver_other.add_argument(
         "--cleanup", action="store_true",
@@ -366,6 +369,9 @@ def parse_args():
             aliases.set_options_for_alias(args.alias, args)
         except KeyError:
             parser.error("unknown alias: %r" % args.alias)
+
+    if args.max_plan_cost is not None and not args.portfolio:
+        parser.error("--max-plan-cost may only be used for portfolios.")
 
     if not args.show_aliases and not args.cleanup:
         _set_components_and_inputs(parser, args)

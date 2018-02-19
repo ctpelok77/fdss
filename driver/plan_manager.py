@@ -33,10 +33,11 @@ def _parse_plan(plan_filename):
 
 
 class PlanManager(object):
-    def __init__(self, plan_prefix):
+    def __init__(self, plan_prefix, initial_bound="infinity"):
         self._plan_prefix = plan_prefix
         self._plan_costs = []
         self._problem_type = None
+        self._initial_bound = initial_bound
 
     def get_plan_prefix(self):
         return self._plan_prefix
@@ -50,7 +51,7 @@ class PlanManager(object):
         if self._plan_costs:
             return self._plan_costs[-1]
         else:
-            return "infinity"
+            return self._initial_bound
 
     def get_problem_type(self):
         if self._problem_type is None:

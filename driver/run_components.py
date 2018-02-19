@@ -106,7 +106,8 @@ def run_search(args):
         "search", args.search_input, args.search_options,
         time_limit, memory_limit)
 
-    plan_manager = PlanManager(args.plan_file)
+    bound = "infinity" if args.max_plan_cost is None else args.max_plan_cost + 1
+    plan_manager = PlanManager(args.plan_file, initial_bound=bound)
     plan_manager.delete_existing_plans()
 
     search = get_executable(args.build, REL_SEARCH_PATH)

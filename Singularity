@@ -46,7 +46,7 @@ From: ubuntu
         --build=release64 \
         --plan-file $PLANFILE \
         --transform-task /planner/builds/h2-mutexes/bin/preprocess \
-        --alias lama-first \
+        --alias seq-sat-remix \
         $DOMAINFILE \
         $PROBLEMFILE
 

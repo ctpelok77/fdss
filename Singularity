@@ -46,16 +46,16 @@ From: ubuntu
         --build=release64 \
         --plan-file $PLANFILE \
         --transform-task /planner/builds/h2-mutexes/bin/preprocess \
-        --alias seq-sat-remix \
+        --alias seq-sat-fdss-2018 \
         $DOMAINFILE \
         $PROBLEMFILE
 
 ## Update the following fields with meta data about your submission.
 ## Please use the same field names and use only one line for each value.
 %labels
-Name        Remix
+Name        Fast Downward Stone Soup 2018
 Description portfolio of satisficing Fast Downward configurations
-Authors     Jendrik Seipp <jendrik.seipp@unibas.ch>
+Authors     Jendrik Seipp <jendrik.seipp@unibas.ch> and Gabriele Röger <gabriele.roeger@unibas.ch>
 SupportsDerivedPredicates yes
 SupportsQuantifiedPreconditions yes
 SupportsQuantifiedEffects yes

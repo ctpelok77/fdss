@@ -23,9 +23,15 @@ From: ubuntu
     apt-get update
     apt-get -y install cmake g++ make python
 
-    ## Build your planner
+    ## Build planner.
     cd /planner
     ./build.py release64
+
+    ## Build h2-mutexes preprocessor.
+    mkdir -p builds/h2-mutexes/
+    cd builds/h2-mutexes/
+    cmake ../../h2-mutexes/
+    make -j4
 
 %runscript
     ## The runscript is called whenever the container is used to solve
@@ -39,16 +45,17 @@ From: ubuntu
     /planner/fast-downward.py \
         --build=release64 \
         --plan-file $PLANFILE \
+        --transform-task /planner/builds/h2-mutexes/bin/preprocess \
+        --alias lama-first \
         $DOMAINFILE \
-        $PROBLEMFILE \
-        --search "astar(blind())"
+        $PROBLEMFILE
 
 ## Update the following fields with meta data about your submission.
 ## Please use the same field names and use only one line for each value.
 %labels
-Name        Scorpion
-Description Saturated cost partitioning over abstraction heuristics
+Name        Remix
+Description portfolio of satisficing Fast Downward configurations
 Authors     Jendrik Seipp <jendrik.seipp@unibas.ch>
-SupportsDerivedPredicates no
-SupportsQuantifiedPreconditions no
+SupportsDerivedPredicates yes
+SupportsQuantifiedPreconditions yes
 SupportsQuantifiedEffects yes

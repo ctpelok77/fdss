@@ -96,16 +96,19 @@ def compute_run_time(timeout, configs, pos):
     return remaining_time * relative_time / remaining_relative_time
 
 
-def run_sat_config(configs, pos, search_cost_type, heuristic_cost_type,
-                   executable, sas_file, plan_manager, timeout, memory):
+def run_nonoptimal_config(
+        track, configs, pos, search_cost_type, heuristic_cost_type,
+        executable, sas_file, plan_manager, timeout, memory):
     run_time = compute_run_time(timeout, configs, pos)
     if run_time <= 0:
         return None
     _, args_template = configs[pos]
     args = list(args_template)
     adapt_args(args, search_cost_type, heuristic_cost_type, plan_manager)
-    args.extend([
-        "--internal-previous-portfolio-plans", str(plan_manager.get_plan_counter())])
+    if track == "sat":
+        args.extend([
+            "--internal-previous-portfolio-plans",
+            str(plan_manager.get_plan_counter())])
     result = run_search(executable, args, sas_file, plan_manager, run_time, memory)
     plan_manager.process_new_plans()
     return result
@@ -123,8 +126,8 @@ def run_nonoptimal(
     while configs:
         configs_next_round = []
         for pos, (relative_time, args) in enumerate(configs):
-            exitcode = run_sat_config(
-                configs, pos, search_cost_type, heuristic_cost_type,
+            exitcode = run_nonoptimal_config(
+                track, configs, pos, search_cost_type, heuristic_cost_type,
                 executable, sas_file, plan_manager, timeout, memory)
             if exitcode is None:
                 return
@@ -144,8 +147,8 @@ def run_nonoptimal(
                     changed_cost_types = True
                     search_cost_type = "normal"
                     heuristic_cost_type = "plusone"
-                    exitcode = run_sat_config(
-                        configs, pos, search_cost_type, heuristic_cost_type,
+                    exitcode = run_nonoptimal_config(
+                        track, configs, pos, search_cost_type, heuristic_cost_type,
                         executable, sas_file, plan_manager, timeout, memory)
                     if exitcode is None:
                         return
@@ -165,9 +168,10 @@ def run_nonoptimal(
         configs = configs_next_round
 
     if final_config:
+        assert track == "sat"
         print("Abort portfolio and run final config.")
-        exitcode = run_sat_config(
-            [(1, final_config)], 0, search_cost_type,
+        exitcode = run_nonoptimal_config(
+            track, [(1, final_config)], 0, search_cost_type,
             heuristic_cost_type, executable, sas_file, plan_manager,
             timeout, memory)
         if exitcode is not None:

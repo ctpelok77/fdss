@@ -8,15 +8,15 @@ Score: 1999.92555232
 TRACK = "sat"
 CONFIGS = [
     # lama-pref-False-random-True-typed-ff-g
-    (26, ['--heuristic', 'hlm,hff=lm_ff_syn(lm_rhw(reasonable_orders=true, lm_cost_type=one), transform=adapt_costs(one))', '--search', 'lazy(alt([single(hff), single(hff, pref_only=true), single(hlm), single(hlm, pref_only=true), type_based([hff, g()])], boost=1000), preferred=[hff,hlm], cost_type=one, reopen_closed=false, randomize_successors=True, preferred_successors_first=False)']),
+    (26, ['--heuristic', 'hlm,hff=lm_ff_syn(lm_rhw(reasonable_orders=true, lm_cost_type=one), transform=adapt_costs(one))', '--search', 'lazy(alt([single(hff), single(hff, pref_only=true), single(hlm), single(hlm, pref_only=true), type_based([hff, g()])], boost=1000), preferred=[hff,hlm], cost_type=one, reopen_closed=false, randomize_successors=True, preferred_successors_first=False, bound=BOUND)']),
     # uniform-typed-g-02
     (25, ['--landmarks', 'lmg=lm_rhw(only_causal_landmarks=false,disjunctive_landmarks=true,conjunctive_landmarks=true,no_orders=true,lm_cost_type=2)', '--heuristic', 'hLM,hFF=lm_ff_syn(lmg,admissible=true,transform=adapt_costs(1))', '--search', 'lazy(alt([type_based([g()]),single(hLM),single(hLM,pref_only=true),single(hFF),single(hFF,pref_only=true)], boost=0),preferred=[hLM],reopen_closed=false,cost_type=2,bound=BOUND)']),
     # lama-pref-True-random-False
-    (135, ['--heuristic', 'hlm,hff=lm_ff_syn(lm_rhw(reasonable_orders=true, lm_cost_type=one), transform=adapt_costs(one))', '--search', 'lazy(alt([single(hff), single(hff, pref_only=true), single(hlm), single(hlm, pref_only=true)], boost=1000), preferred=[hff,hlm], cost_type=one, reopen_closed=false, randomize_successors=False, preferred_successors_first=True)']),
+    (135, ['--heuristic', 'hlm,hff=lm_ff_syn(lm_rhw(reasonable_orders=true, lm_cost_type=one), transform=adapt_costs(one))', '--search', 'lazy(alt([single(hff), single(hff, pref_only=true), single(hlm), single(hlm, pref_only=true)], boost=1000), preferred=[hff,hlm], cost_type=one, reopen_closed=false, randomize_successors=False, preferred_successors_first=True, bound=BOUND)']),
     # fdss-2014-03
     (59, ['--heuristic', 'hff=ff(transform=adapt_costs(one))', '--heuristic', 'hlm=lmcount(lm_rhw(reasonable_orders=true, lm_cost_type=2), transform=adapt_costs(one))', '--search', 'eager_greedy([hff, hlm], preferred=[hff, hlm], cost_type=one, bound=BOUND)']),
     # lama-pref-True-random-True
-    (23, ['--heuristic', 'hlm,hff=lm_ff_syn(lm_rhw(reasonable_orders=true, lm_cost_type=one), transform=adapt_costs(one))', '--search', 'lazy(alt([single(hff), single(hff, pref_only=true), single(hlm), single(hlm, pref_only=true)], boost=1000), preferred=[hff,hlm], cost_type=one, reopen_closed=false, randomize_successors=True, preferred_successors_first=True)']),
+    (23, ['--heuristic', 'hlm,hff=lm_ff_syn(lm_rhw(reasonable_orders=true, lm_cost_type=one), transform=adapt_costs(one))', '--search', 'lazy(alt([single(hff), single(hff, pref_only=true), single(hlm), single(hlm, pref_only=true)], boost=1000), preferred=[hff,hlm], cost_type=one, reopen_closed=false, randomize_successors=True, preferred_successors_first=True, bound=BOUND)']),
     # uniform-04
     (57, ['--landmarks', 'lmg=lm_rhw(only_causal_landmarks=false,disjunctive_landmarks=true,conjunctive_landmarks=true,no_orders=true,lm_cost_type=1)', '--heuristic', 'hCg=cg(adapt_costs(2))', '--heuristic', 'hLM,hFF=lm_ff_syn(lmg,admissible=true,transform=adapt_costs(2))', '--search', 'lazy(alt([single(sum([g(),weight(hLM, 10)])),single(sum([g(),weight(hLM, 10)]),pref_only=true),single(sum([g(),weight(hFF, 10)])),single(sum([g(),weight(hFF, 10)]),pref_only=true),single(sum([g(),weight(hCg, 10)])),single(sum([g(),weight(hCg, 10)]),pref_only=true)], boost=1000),preferred=[hLM,hCg],reopen_closed=false,cost_type=2,bound=BOUND)']),
     # fdss-2014-04
@@ -90,3 +90,4 @@ CONFIGS = [
     # uniform-03
     (81, ['--landmarks', 'lmg=lm_hm(only_causal_landmarks=false,disjunctive_landmarks=true,conjunctive_landmarks=true,no_orders=true,m=1)', '--heuristic', 'hLM=lmcount(lmg,admissible=true)', '--search', 'eager(single(sum([g(),weight(hLM, 5)])),preferred=[],reopen_closed=true,cost_type=1,bound=BOUND)']),
 ]
+
